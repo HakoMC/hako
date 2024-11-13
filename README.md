@@ -1,4 +1,4 @@
-# hako
+# hako - command line tools
 はこのためのコマンドラインツール
 Rustの練習
 
