@@ -29,8 +29,8 @@ fn main() {
 
 fn print_help() {
     println!("Usage:");
-    println!("  hako deploy - HexoプロジェクトをWranglerでデプロイします");
-    println!("  hako algolia - Algoliaインデックスを更新します");
+    println!("  hako d, deploy - HexoプロジェクトをWranglerでデプロイします");
+    println!("  hako a, algolia - Algoliaインデックスを更新します");
     println!("  hako help  - ヘルプを表示します");
 }
 
