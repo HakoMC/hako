@@ -4,6 +4,8 @@ use reqwest::blocking::Client;
 use serde_json::json;
 use std::env;
 
+const CLOUDFLARE_ORANGE: u32 = 0xF6821F;
+
 pub fn send_notification(message: &str) {
     // .envファイルを読み込み
     dotenv().ok();
@@ -19,7 +21,16 @@ pub fn send_notification(message: &str) {
 
     let client = Client::new();
     let payload = json!({
-        "content": message,
+        "embeds": [{
+            "title": "🚀 デプロイ完了",
+            "description": message,
+            "url": "https://xn--n8js9a0a.xn--q9jyb4c/",
+            "color": CLOUDFLARE_ORANGE,
+            "footer": {
+                "text": "Powered by Cloudflare Pages"
+            },
+            "timestamp": chrono::Utc::now().to_rfc3339()
+        }]
     });
 
     match client.post(&webhook_url).json(&payload).send() {
@@ -33,9 +44,7 @@ pub fn send_notification(message: &str) {
 
 pub fn create_deploy_message(commit_message: &str, elapsed: std::time::Duration) -> String {
     format!(
-        "🚀 デプロイが完了しました!\n\
-         📝 コミットメッセージ: {}\n\
-         ⏱️ 所要時間: {:?}",
+        "📝 **コミットメッセージ**\n{}\n\n⏱️ **所要時間**\n{:?}",
         commit_message, elapsed
     )
 }
