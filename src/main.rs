@@ -1,6 +1,7 @@
 use colored::*;
 use std::env;
 use std::process::Command;
+use std::time::Instant;
 
 fn main() {
     // コマンドライン引数を取得
@@ -33,10 +34,12 @@ fn print_help() {
 
 fn run_deploy_command(args: &[String]) {
     if args.len() < 3 {
-        println!("エラー!: コミットメッセージが必要です");
+        println!("{}", "エラー!: コミットメッセージが必要です".red());
         println!("使い方: hako commit \"コミットメッセージ\"");
         return;
     }
+
+    let start = Instant::now();
 
     println!("変更をステージングしています...");
     let git_add_status = Command::new("git").args(["add", "."]).status();
@@ -108,7 +111,10 @@ fn run_deploy_command(args: &[String]) {
     match wrangler_status {
         Ok(status) => {
             if status.success() {
-                println!("{}", "デプロイしました!".green());
+                println!(
+                    "{}",
+                    format!("デプロイしました! 所要時間: {:?}", start.elapsed()).green()
+                );
             } else {
                 println!(
                     "{}",
