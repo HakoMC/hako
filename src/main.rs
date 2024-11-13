@@ -3,6 +3,8 @@ use std::env;
 use std::process::Command;
 use std::time::Instant;
 
+mod discord;
+
 fn main() {
     // コマンドライン引数を取得
     let args: Vec<String> = env::args().collect();
@@ -85,6 +87,27 @@ fn run_deploy_command(args: &[String]) {
         }
     }
 
+    println!("プッシュしています...");
+    let push_status = Command::new("git")
+        .args(["push", "origin", "main"])
+        .status();
+    match push_status {
+        Ok(status) => {
+            if status.success() {
+                println!("{}", "プッシュしました!".green());
+            } else {
+                println!(
+                    "{}",
+                    format!("プッシュに失敗しました! ステータス: {}", status).red()
+                );
+            }
+        }
+        Err(e) => {
+            println!("{}", format!("プッシュの実行に失敗しました: {}", e).red());
+            return;
+        }
+    }
+
     println!("ビルドしています...");
     let hexo_status = Command::new("hexo").arg("g").status();
     match hexo_status {
@@ -111,10 +134,13 @@ fn run_deploy_command(args: &[String]) {
     match wrangler_status {
         Ok(status) => {
             if status.success() {
-                println!(
-                    "{}",
-                    format!("デプロイしました! 所要時間: {:?}", start.elapsed()).green()
-                );
+                let elapsed = start.elapsed();
+                let success_message = format!("デプロイしました! 所要時間: {:?}", elapsed);
+                println!("{}", success_message.green());
+
+                // Discordへ通知
+                let discord_message = discord::create_deploy_message(&args[2], elapsed);
+                discord::send_notification(&discord_message);
             } else {
                 println!(
                     "{}",
